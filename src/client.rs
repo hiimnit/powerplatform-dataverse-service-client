@@ -605,7 +605,7 @@ impl<'url, A: Authenticate> Client<'url, A> {
     */
     pub async fn retrieve_multiple<E: ReadEntity>(&self, query: &Query) -> Result<Page<E>> {
         let columns = E::get_columns();
-        let url_path = self.build_query_url(query.logical_name, columns, query);
+        let url_path = self.build_query_url(columns, query);
 
         async fn handle_response<E: ReadEntity>(response: Response) -> Result<Page<E>> {
             if response.status().is_client_error() || response.status().is_server_error() {
@@ -901,7 +901,7 @@ impl<'url, A: Authenticate> Client<'url, A> {
         )
     }
 
-    fn build_query_url(&self, table_name: impl Display, columns: &[&str], query: &Query) -> String {
+    fn build_query_url(&self, columns: &[&str], query: &Query) -> String {
         let mut select = String::new();
         let mut comma_required = false;
 
@@ -915,8 +915,8 @@ impl<'url, A: Authenticate> Client<'url, A> {
         }
 
         format!(
-            "{}api/data/v{}/{}{}&$select={}",
-            self.url, VERSION, table_name, query, select
+            "{}api/data/v{}/{}&$select={}",
+            self.url, VERSION, query, select
         )
     }
 }
